@@ -9,7 +9,10 @@ import {
   Camera,
   Heart,
   Loader,
-  Home
+  Home,
+  Car,
+  Settings,
+  Info
 } from 'lucide-react';
 import EVModel3D from '../components/3D/EVModel3D';
 import ARViewer from '../components/AR/ARViewer';
@@ -82,9 +85,9 @@ const ARShowroom: React.FC = () => {
         </div>
 
         {/* AR Viewer Modal */}
-        {showARViewer && currentModel && (
+        {showARViewer && teslaModel && (
           <ARViewer
-            modelUrl={currentModel.modelUrl}
+            modelUrl={teslaModel.modelUrl}
             color={selectedColor}
             onClose={() => setShowARViewer(false)}
           />
@@ -97,7 +100,7 @@ const ARShowroom: React.FC = () => {
               <div className="p-6 border-b border-slate-700/50">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-white">
-                    {currentModel?.brand} {currentModel?.model} - 3D Preview
+                    {teslaModel?.brand} {teslaModel?.model} - 3D Preview
                   </h2>
                   <div className="flex items-center space-x-2">
                     <button 
@@ -125,9 +128,9 @@ const ARShowroom: React.FC = () => {
                     <ambientLight intensity={0.5} />
                     <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
                     <pointLight position={[-10, -10, -10]} />
-                    {currentModel && (
+                    {teslaModel && (
                       <EVModel3D
-                        modelUrl={currentModel.modelUrl}
+                        modelUrl={teslaModel.modelUrl}
                         color={selectedColor}
                         scale={1}
                         autoRotate={true}
@@ -155,36 +158,26 @@ const ARShowroom: React.FC = () => {
 
           {/* Controls Panel */}
           <div className="lg:col-span-4 space-y-6">
-            {/* Model Selection */}
+            {/* Model Info */}
             <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6">
               <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                 <Car className="w-5 h-5 mr-2 text-cyan-400" />
-                Select Model
+                Tesla Model S
               </h3>
-              <div className="space-y-3">
-                {models.map((model) => (
-                  <button
-                    key={model.id}
-                    onClick={() => setSelectedModel(model)}
-                    className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
-                      selectedModel?.id === model.id
-                        ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
-                        : 'bg-slate-700/50 border-slate-600/50 text-slate-300 hover:bg-slate-700 hover:border-slate-500'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="font-semibold">{model.model}</div>
-                        <div className="text-sm opacity-75">{model.brand}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm">{model.range} mi</div>
-                        <div className="text-sm font-semibold">${model.price.toLocaleString()}</div>
-                      </div>
+              {teslaModel && (
+                <div className="bg-slate-700/50 rounded-lg p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-semibold text-cyan-400">{teslaModel.model}</div>
+                      <div className="text-sm text-slate-300">{teslaModel.brand}</div>
                     </div>
-                  </button>
-                ))}
-              </div>
+                    <div className="text-right">
+                      <div className="text-sm text-slate-300">{teslaModel.range} mi</div>
+                      <div className="text-sm font-semibold text-white">${teslaModel.price.toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Color Selection */}
@@ -222,7 +215,7 @@ const ARShowroom: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 <button
-                  onClick={handleFavoriteToggle}
+                  onClick={toggleFavorite}
                   className={`w-full inline-flex items-center justify-center px-4 py-3 font-medium rounded-lg transition-all duration-200 ${
                     isFavorite
                       ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white'
@@ -232,10 +225,13 @@ const ARShowroom: React.FC = () => {
                   <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
                   {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                 </button>
-                <button className="w-full inline-flex items-center justify-center px-4 py-3 bg-slate-700 text-white font-medium rounded-lg hover:bg-slate-600 transition-all duration-200">
+                <Link
+                  to="/specs"
+                  className="w-full inline-flex items-center justify-center px-4 py-3 bg-slate-700 text-white font-medium rounded-lg hover:bg-slate-600 transition-all duration-200"
+                >
                   <Info className="w-4 h-4 mr-2" />
                   View Specifications
-                </button>
+                </Link>
               </div>
             </div>
           </div>
