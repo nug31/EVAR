@@ -1,72 +1,22 @@
 import { EVModel, ChargingStation, UserProfile } from '../store/useAppStore';
 
-// Mock data - in production, these would be real API calls
-const mockEVModels: EVModel[] = [
-  {
-    id: '1',
-    brand: 'Tesla',
-    model: 'Model S',
-    year: 2024,
-    price: 89990,
-    range: 405,
-    acceleration: 3.1,
-    topSpeed: 200,
-    batteryCapacity: 100,
-    chargingSpeed: 250,
-    efficiency: 120,
-    modelUrl: '/models/tesla-s.glb',
-    image: '/models/tesla-s.jpg',
-    colors: ['#1E40AF', '#F8FAFC', '#0F172A', '#DC2626', '#059669']
-  },
-  {
-    id: '2',
-    brand: 'Mercedes',
-    model: 'EQS',
-    year: 2024,
-    price: 102310,
-    range: 453,
-    acceleration: 4.3,
-    topSpeed: 155,
-    batteryCapacity: 107.8,
-    chargingSpeed: 200,
-    efficiency: 124,
-    modelUrl: '/models/mercedes-eqs.glb',
-    image: '/models/mercedes-eqs.jpg',
-    colors: ['#1E40AF', '#F8FAFC', '#0F172A', '#DC2626', '#059669']
-  },
-  {
-    id: '3',
-    brand: 'BMW',
-    model: 'i4 M50',
-    year: 2024,
-    price: 67300,
-    range: 270,
-    acceleration: 3.7,
-    topSpeed: 140,
-    batteryCapacity: 83.9,
-    chargingSpeed: 205,
-    efficiency: 104,
-    modelUrl: '/models/bmw-i4.glb',
-    image: '/models/bmw-i4.jpg',
-    colors: ['#1E40AF', '#F8FAFC', '#0F172A', '#DC2626', '#059669']
-  },
-  {
-    id: '4',
-    brand: 'Audi',
-    model: 'e-tron GT',
-    year: 2024,
-    price: 102400,
-    range: 238,
-    acceleration: 3.9,
-    topSpeed: 152,
-    batteryCapacity: 93.4,
-    chargingSpeed: 270,
-    efficiency: 95,
-    modelUrl: '/models/audi-etron.glb',
-    image: '/models/audi-etron.jpg',
-    colors: ['#1E40AF', '#F8FAFC', '#0F172A', '#DC2626', '#059669']
-  }
-];
+// Single Tesla Model S - Simplified data
+const teslaModelS: EVModel = {
+  id: '1',
+  brand: 'Tesla',
+  model: 'Model S',
+  year: 2024,
+  price: 89990,
+  range: 405,
+  acceleration: 3.1,
+  topSpeed: 200,
+  batteryCapacity: 100,
+  chargingSpeed: 250,
+  efficiency: 120,
+  modelUrl: '/models/tesla-s.glb',
+  image: '/models/tesla-s.jpg',
+  colors: ['#1E40AF', '#F8FAFC', '#0F172A', '#DC2626', '#059669']
+};
 
 const mockChargingStations: ChargingStation[] = [
   {
@@ -142,15 +92,15 @@ const mockUser: UserProfile = {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const api = {
-  // EV Models
-  async getEVModels(): Promise<EVModel[]> {
-    await delay(1000);
-    return mockEVModels;
+  // Single Tesla Model S
+  async getTeslaModelS(): Promise<EVModel> {
+    await delay(800);
+    return teslaModelS;
   },
 
-  async getEVModel(id: string): Promise<EVModel | null> {
+  async getEVModel(): Promise<EVModel> {
     await delay(500);
-    return mockEVModels.find(model => model.id === id) || null;
+    return teslaModelS;
   },
 
   // Charging Stations

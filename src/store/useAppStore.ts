@@ -45,39 +45,30 @@ export interface UserProfile {
 }
 
 interface AppState {
-  // User data
-  user: UserProfile | null;
-  
-  // EV Models
-  evModels: EVModel[];
-  selectedModel: EVModel | null;
+  // Tesla Model S data
+  teslaModel: EVModel | null;
   selectedColor: string;
-  
-  // Charging stations
-  chargingStations: ChargingStation[];
-  selectedStation: ChargingStation | null;
-  
+
   // AR state
   isARSupported: boolean;
   isARActive: boolean;
-  
+
   // UI state
   isLoading: boolean;
   error: string | null;
-  
+
+  // User interaction
+  arSessions: number;
+  isFavorite: boolean;
+
   // Actions
-  setUser: (user: UserProfile) => void;
-  setEVModels: (models: EVModel[]) => void;
-  setSelectedModel: (model: EVModel | null) => void;
+  setTeslaModel: (model: EVModel) => void;
   setSelectedColor: (color: string) => void;
-  setChargingStations: (stations: ChargingStation[]) => void;
-  setSelectedStation: (station: ChargingStation | null) => void;
   setARSupported: (supported: boolean) => void;
   setARActive: (active: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  addToFavorites: (modelId: string) => void;
-  removeFromFavorites: (modelId: string) => void;
+  toggleFavorite: () => void;
   incrementARSessions: () => void;
 }
 
@@ -85,76 +76,44 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       // Initial state
-      user: null,
-      evModels: [],
-      selectedModel: null,
+      teslaModel: null,
       selectedColor: '#1E40AF',
-      chargingStations: [],
-      selectedStation: null,
       isARSupported: false,
       isARActive: false,
       isLoading: false,
       error: null,
+      arSessions: 0,
+      isFavorite: false,
 
       // Actions
-      setUser: (user) => set({ user }),
-      
-      setEVModels: (evModels) => set({ evModels }),
-      
-      setSelectedModel: (selectedModel) => set({ selectedModel }),
-      
+      setTeslaModel: (teslaModel) => set({ teslaModel }),
+
       setSelectedColor: (selectedColor) => set({ selectedColor }),
-      
-      setChargingStations: (chargingStations) => set({ chargingStations }),
-      
-      setSelectedStation: (selectedStation) => set({ selectedStation }),
-      
+
       setARSupported: (isARSupported) => set({ isARSupported }),
-      
+
       setARActive: (isARActive) => set({ isARActive }),
-      
+
       setLoading: (isLoading) => set({ isLoading }),
-      
+
       setError: (error) => set({ error }),
-      
-      addToFavorites: (modelId) => {
-        const { user } = get();
-        if (user) {
-          const updatedUser = {
-            ...user,
-            favorites: [...user.favorites, modelId]
-          };
-          set({ user: updatedUser });
-        }
+
+      toggleFavorite: () => {
+        const { isFavorite } = get();
+        set({ isFavorite: !isFavorite });
       },
-      
-      removeFromFavorites: (modelId) => {
-        const { user } = get();
-        if (user) {
-          const updatedUser = {
-            ...user,
-            favorites: user.favorites.filter(id => id !== modelId)
-          };
-          set({ user: updatedUser });
-        }
-      },
-      
+
       incrementARSessions: () => {
-        const { user } = get();
-        if (user) {
-          const updatedUser = {
-            ...user,
-            arSessions: user.arSessions + 1
-          };
-          set({ user: updatedUser });
-        }
+        const { arSessions } = get();
+        set({ arSessions: arSessions + 1 });
       }
     }),
     {
       name: 'evar-storage',
       partialize: (state) => ({
-        user: state.user,
         selectedColor: state.selectedColor,
+        arSessions: state.arSessions,
+        isFavorite: state.isFavorite,
       }),
     }
   )

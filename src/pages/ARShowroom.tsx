@@ -1,43 +1,33 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
+import { Link } from 'react-router-dom';
 import {
-  Car,
+  ArrowLeft,
   Palette,
-  Settings,
   RotateCcw,
   Camera,
-  Maximize,
-  Info,
   Heart,
-  Loader
+  Loader,
+  Home
 } from 'lucide-react';
 import EVModel3D from '../components/3D/EVModel3D';
 import ARViewer from '../components/AR/ARViewer';
-import { useEVModels } from '../hooks/useEVModels';
+import { useTeslaModel } from '../hooks/useEVModels';
 import { useAppStore } from '../store/useAppStore';
 
 const ARShowroom: React.FC = () => {
-  const { models, isLoading } = useEVModels();
+  const { teslaModel, isLoading } = useTeslaModel();
   const {
-    selectedModel,
     selectedColor,
-    setSelectedModel,
     setSelectedColor,
-    user,
-    addToFavorites,
-    removeFromFavorites
+    isFavorite,
+    toggleFavorite,
+    incrementARSessions
   } = useAppStore();
 
   const [showARViewer, setShowARViewer] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
-
-  // Set default model when models are loaded
-  useEffect(() => {
-    if (models && models.length > 0 && !selectedModel) {
-      setSelectedModel(models[0]);
-    }
-  }, [models, selectedModel, setSelectedModel]);
 
   const colors = [
     { name: 'Ocean Blue', value: '#1E40AF' },
@@ -47,21 +37,9 @@ const ARShowroom: React.FC = () => {
     { name: 'Forest Green', value: '#059669' },
   ];
 
-  const currentModel = selectedModel || (models && models[0]);
-  const isFavorite = user?.favorites.includes(currentModel?.id || '') || false;
-
-  const handleFavoriteToggle = () => {
-    if (!currentModel || !user) return;
-
-    if (isFavorite) {
-      removeFromFavorites(currentModel.id);
-    } else {
-      addToFavorites(currentModel.id);
-    }
-  };
-
   const startARMode = () => {
     setShowARViewer(true);
+    incrementARSessions();
   };
 
   if (isLoading) {
@@ -69,20 +47,23 @@ const ARShowroom: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 pt-16 flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Loading EV Models</h2>
-          <p className="text-slate-300">Please wait while we prepare the showroom...</p>
+          <h2 className="text-2xl font-bold text-white mb-2">Loading Tesla Model S</h2>
+          <p className="text-slate-300">Preparing your AR showroom...</p>
         </div>
       </div>
     );
   }
 
-  if (!models || models.length === 0) {
+  if (!teslaModel) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 pt-16 flex items-center justify-center">
         <div className="text-center">
-          <Car className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">No Models Available</h2>
-          <p className="text-slate-300">Please check back later for available EV models.</p>
+          <Home className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Model Not Available</h2>
+          <p className="text-slate-300 mb-4">Unable to load Tesla Model S</p>
+          <Link to="/" className="text-cyan-400 hover:text-cyan-300">
+            Return to Home
+          </Link>
         </div>
       </div>
     );

@@ -3,27 +3,27 @@ import { useQuery } from 'react-query';
 import { api } from '../services/api';
 import { useAppStore } from '../store/useAppStore';
 
-export const useEVModels = () => {
-  const { setEVModels, setLoading, setError } = useAppStore();
+export const useTeslaModel = () => {
+  const { setTeslaModel, setLoading, setError } = useAppStore();
 
   const {
-    data: models,
+    data: teslaModel,
     isLoading,
     error,
     refetch
   } = useQuery(
-    'evModels',
-    api.getEVModels,
+    'teslaModelS',
+    api.getTeslaModelS,
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-      retry: 3,
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes
+      retry: 2,
       onSuccess: (data) => {
-        setEVModels(data);
+        setTeslaModel(data);
         setError(null);
       },
       onError: (err: any) => {
-        setError(err.message || 'Failed to load EV models');
+        setError(err.message || 'Failed to load Tesla Model S');
       }
     }
   );
@@ -33,21 +33,9 @@ export const useEVModels = () => {
   }, [isLoading, setLoading]);
 
   return {
-    models,
+    teslaModel,
     isLoading,
     error,
     refetch
   };
-};
-
-export const useEVModel = (id: string) => {
-  return useQuery(
-    ['evModel', id],
-    () => api.getEVModel(id),
-    {
-      enabled: !!id,
-      staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000
-    }
-  );
 };

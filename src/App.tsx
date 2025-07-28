@@ -4,12 +4,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
-import Home from './pages/Home';
+import SimpleHome from './pages/SimpleHome';
 import ARShowroom from './pages/ARShowroom';
-import ChargingStations from './pages/ChargingStations';
-import Maintenance from './pages/Maintenance';
-import Comparison from './pages/Comparison';
-import Profile from './pages/Profile';
+import Specs from './pages/Specs';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -31,12 +28,9 @@ function App() {
             <Header />
             <ErrorBoundary>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<SimpleHome />} />
                 <Route path="/showroom" element={<ARShowroom />} />
-                <Route path="/charging" element={<ChargingStations />} />
-                <Route path="/maintenance" element={<Maintenance />} />
-                <Route path="/comparison" element={<Comparison />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/specs" element={<Specs />} />
               </Routes>
             </ErrorBoundary>
           </div>

@@ -1,49 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Camera, 
-  Car, 
-  Battery, 
-  MapPin, 
-  Wrench, 
-  BarChart3,
+import {
+  Camera,
+  Car,
+  Battery,
   ArrowRight,
   Zap,
-  Globe,
-  Smartphone
+  Gauge,
+  Timer,
+  Star
 } from 'lucide-react';
+import { useTeslaModel } from '../hooks/useEVModels';
+import { useAppStore } from '../store/useAppStore';
 
 const Home: React.FC = () => {
-  const features = [
-    {
-      icon: Camera,
-      title: 'AR Showroom',
-      description: 'Visualize EVs in 3D with augmented reality. Customize colors, wheels, and explore every detail.',
-      path: '/showroom',
-      gradient: 'from-cyan-500 to-blue-600'
-    },
-    {
-      icon: MapPin,
-      title: 'Charging Locator',
-      description: 'Find nearby charging stations with real-time availability and AR navigation assistance.',
-      path: '/charging',
-      gradient: 'from-emerald-500 to-green-600'
-    },
-    {
-      icon: Wrench,
-      title: 'AR Maintenance',
-      description: 'Interactive maintenance guides with step-by-step AR instructions for your EV.',
-      path: '/maintenance',
-      gradient: 'from-orange-500 to-red-600'
-    },
-    {
-      icon: BarChart3,
-      title: 'EV Comparison',
-      description: 'Compare multiple EV models side-by-side with detailed AR overlays and specifications.',
-      path: '/comparison',
-      gradient: 'from-purple-500 to-pink-600'
-    }
-  ];
+  const { teslaModel, isLoading } = useTeslaModel();
+  const { arSessions, isFavorite } = useAppStore();
 
   const stats = [
     { label: 'EV Models', value: '150+', icon: Car },

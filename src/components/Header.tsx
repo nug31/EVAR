@@ -9,10 +9,7 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'Home', path: '/' },
     { name: 'AR Showroom', path: '/showroom' },
-    { name: 'Charging', path: '/charging' },
-    { name: 'Maintenance', path: '/maintenance' },
-    { name: 'Compare', path: '/comparison' },
-    { name: 'Profile', path: '/profile' },
+    { name: 'Specifications', path: '/specs' },
   ];
 
   return (
