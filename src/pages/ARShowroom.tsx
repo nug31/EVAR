@@ -1,29 +1,43 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
-import { 
-  Car, 
-  Palette, 
-  Settings, 
-  RotateCcw, 
+import {
+  Car,
+  Palette,
+  Settings,
+  RotateCcw,
   Camera,
   Maximize,
   Info,
-  Heart
+  Heart,
+  Loader
 } from 'lucide-react';
+import EVModel3D from '../components/3D/EVModel3D';
+import ARViewer from '../components/AR/ARViewer';
+import { useEVModels } from '../hooks/useEVModels';
+import { useAppStore } from '../store/useAppStore';
 
 const ARShowroom: React.FC = () => {
-  const [selectedModel, setSelectedModel] = useState('Model S');
-  const [selectedColor, setSelectedColor] = useState('#1E40AF');
-  const [isARMode, setIsARMode] = useState(false);
+  const { models, isLoading } = useEVModels();
+  const {
+    selectedModel,
+    selectedColor,
+    setSelectedModel,
+    setSelectedColor,
+    user,
+    addToFavorites,
+    removeFromFavorites
+  } = useAppStore();
+
+  const [showARViewer, setShowARViewer] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const evModels = [
-    { name: 'Model S', brand: 'Tesla', range: '405 mi', price: '$89,990' },
-    { name: 'EQS', brand: 'Mercedes', range: '453 mi', price: '$102,310' },
-    { name: 'i4 M50', brand: 'BMW', range: '270 mi', price: '$67,300' },
-    { name: 'e-tron GT', brand: 'Audi', range: '238 mi', price: '$102,400' },
-  ];
+  // Set default model when models are loaded
+  useEffect(() => {
+    if (models && models.length > 0 && !selectedModel) {
+      setSelectedModel(models[0]);
+    }
+  }, [models, selectedModel, setSelectedModel]);
 
   const colors = [
     { name: 'Ocean Blue', value: '#1E40AF' },
@@ -33,25 +47,46 @@ const ARShowroom: React.FC = () => {
     { name: 'Forest Green', value: '#059669' },
   ];
 
-  const EVModel: React.FC<{ color: string }> = ({ color }) => {
-    return (
-      <mesh rotation={[0, Math.PI / 4, 0]} scale={[2, 2, 2]}>
-        <boxGeometry args={[2, 1, 4]} />
-        <meshStandardMaterial color={color} roughness={0.1} metalness={0.8} />
-        {/* Simple car-like shape */}
-        <mesh position={[0, 0.5, 1]} scale={[1.8, 0.6, 1.5]}>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color={color} roughness={0.1} metalness={0.8} />
-        </mesh>
-      </mesh>
-    );
+  const currentModel = selectedModel || (models && models[0]);
+  const isFavorite = user?.favorites.includes(currentModel?.id || '') || false;
+
+  const handleFavoriteToggle = () => {
+    if (!currentModel || !user) return;
+
+    if (isFavorite) {
+      removeFromFavorites(currentModel.id);
+    } else {
+      addToFavorites(currentModel.id);
+    }
   };
 
   const startARMode = () => {
-    setIsARMode(true);
-    // In a real implementation, this would initialize WebXR
-    alert('AR Mode would initialize here with WebXR API');
+    setShowARViewer(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-12 h-12 text-cyan-400 animate-spin mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Loading EV Models</h2>
+          <p className="text-slate-300">Please wait while we prepare the showroom...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!models || models.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <Car className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">No Models Available</h2>
+          <p className="text-slate-300">Please check back later for available EV models.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 pt-16">
@@ -65,6 +100,15 @@ const ARShowroom: React.FC = () => {
           </p>
         </div>
 
+        {/* AR Viewer Modal */}
+        {showARViewer && currentModel && (
+          <ARViewer
+            modelUrl={currentModel.modelUrl}
+            color={selectedColor}
+            onClose={() => setShowARViewer(false)}
+          />
+        )}
+
         <div className="grid lg:grid-cols-12 gap-8">
           {/* 3D Viewer */}
           <div className="lg:col-span-8">
@@ -72,7 +116,7 @@ const ARShowroom: React.FC = () => {
               <div className="p-6 border-b border-slate-700/50">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-white">
-                    {selectedModel} - 3D Preview
+                    {currentModel?.brand} {currentModel?.model} - 3D Preview
                   </h2>
                   <div className="flex items-center space-x-2">
                     <button 
@@ -94,7 +138,14 @@ const ARShowroom: React.FC = () => {
                   <ambientLight intensity={0.5} />
                   <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
                   <pointLight position={[-10, -10, -10]} />
-                  <EVModel color={selectedColor} />
+                  {currentModel && (
+                    <EVModel3D
+                      modelUrl={currentModel.modelUrl}
+                      color={selectedColor}
+                      scale={1}
+                      autoRotate={true}
+                    />
+                  )}
                   <Environment preset="city" />
                   <OrbitControls enablePan={false} enableZoom={true} enableRotate={true} />
                 </Canvas>
@@ -123,24 +174,24 @@ const ARShowroom: React.FC = () => {
                 Select Model
               </h3>
               <div className="space-y-3">
-                {evModels.map((model) => (
+                {models.map((model) => (
                   <button
-                    key={model.name}
-                    onClick={() => setSelectedModel(model.name)}
+                    key={model.id}
+                    onClick={() => setSelectedModel(model)}
                     className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
-                      selectedModel === model.name
+                      selectedModel?.id === model.id
                         ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
                         : 'bg-slate-700/50 border-slate-600/50 text-slate-300 hover:bg-slate-700 hover:border-slate-500'
                     }`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="font-semibold">{model.name}</div>
+                        <div className="font-semibold">{model.model}</div>
                         <div className="text-sm opacity-75">{model.brand}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm">{model.range}</div>
-                        <div className="text-sm font-semibold">{model.price}</div>
+                        <div className="text-sm">{model.range} mi</div>
+                        <div className="text-sm font-semibold">${model.price.toLocaleString()}</div>
                       </div>
                     </div>
                   </button>
@@ -182,9 +233,16 @@ const ARShowroom: React.FC = () => {
                 Actions
               </h3>
               <div className="space-y-3">
-                <button className="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-medium rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-200">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Add to Favorites
+                <button
+                  onClick={handleFavoriteToggle}
+                  className={`w-full inline-flex items-center justify-center px-4 py-3 font-medium rounded-lg transition-all duration-200 ${
+                    isFavorite
+                      ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white'
+                      : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                  {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                 </button>
                 <button className="w-full inline-flex items-center justify-center px-4 py-3 bg-slate-700 text-white font-medium rounded-lg hover:bg-slate-600 transition-all duration-200">
                   <Info className="w-4 h-4 mr-2" />
