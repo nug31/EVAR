@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
 import Home from './pages/Home';
 import ARShowroom from './pages/ARShowroom';
@@ -23,22 +24,28 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-          <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/showroom" element={<ARShowroom />} />
-            <Route path="/charging" element={<ChargingStations />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/comparison" element={<Comparison />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </div>
-      </Router>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+            <Header />
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/showroom" element={<ARShowroom />} />
+                <Route path="/charging" element={<ChargingStations />} />
+                <Route path="/maintenance" element={<Maintenance />} />
+                <Route path="/comparison" element={<Comparison />} />
+                <Route path="/profile" element={<Profile />} />
+              </Routes>
+            </ErrorBoundary>
+          </div>
+        </Router>
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

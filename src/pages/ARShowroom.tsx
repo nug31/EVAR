@@ -134,20 +134,27 @@ const ARShowroom: React.FC = () => {
               </div>
 
               <div ref={canvasRef} className="h-96 lg:h-[500px] bg-gradient-to-br from-slate-700 to-slate-800">
-                <Canvas camera={{ position: [5, 3, 5], fov: 45 }}>
-                  <ambientLight intensity={0.5} />
-                  <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-                  <pointLight position={[-10, -10, -10]} />
-                  {currentModel && (
-                    <EVModel3D
-                      modelUrl={currentModel.modelUrl}
-                      color={selectedColor}
-                      scale={1}
-                      autoRotate={true}
-                    />
-                  )}
-                  <Environment preset="city" />
-                  <OrbitControls enablePan={false} enableZoom={true} enableRotate={true} />
+                <Canvas
+                  camera={{ position: [5, 3, 5], fov: 45 }}
+                  onCreated={({ gl }) => {
+                    gl.setClearColor('#334155', 1);
+                  }}
+                >
+                  <React.Suspense fallback={null}>
+                    <ambientLight intensity={0.5} />
+                    <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                    <pointLight position={[-10, -10, -10]} />
+                    {currentModel && (
+                      <EVModel3D
+                        modelUrl={currentModel.modelUrl}
+                        color={selectedColor}
+                        scale={1}
+                        autoRotate={true}
+                      />
+                    )}
+                    <Environment preset="city" />
+                    <OrbitControls enablePan={false} enableZoom={true} enableRotate={true} />
+                  </React.Suspense>
                 </Canvas>
               </div>
 

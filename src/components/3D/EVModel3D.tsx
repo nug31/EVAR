@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -21,7 +21,6 @@ const EVModel3D: React.FC<EVModel3DProps> = ({
   autoRotate = false
 }) => {
   const meshRef = useRef<THREE.Group>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Auto rotation
@@ -31,21 +30,7 @@ const EVModel3D: React.FC<EVModel3DProps> = ({
     }
   });
 
-  // Try to load GLTF model, fallback to basic geometry
-  let model;
-  try {
-    model = useGLTF(modelUrl);
-    if (model && isLoading) {
-      setIsLoading(false);
-      setError(null);
-    }
-  } catch (err) {
-    console.warn('Failed to load GLTF model, using fallback:', err);
-    setError('Model not found, using fallback');
-    setIsLoading(false);
-  }
-
-  // Fallback basic car shape
+  // Fallback basic car shape component
   const FallbackModel = () => (
     <group ref={meshRef} scale={scale} rotation={rotation} position={position}>
       {/* Car body */}
@@ -53,13 +38,13 @@ const EVModel3D: React.FC<EVModel3DProps> = ({
         <boxGeometry args={[4, 1, 2]} />
         <meshStandardMaterial color={color} roughness={0.1} metalness={0.8} />
       </mesh>
-      
+
       {/* Car cabin */}
       <mesh position={[0, 1.2, 0.2]} scale={[0.8, 0.6, 0.7]}>
         <boxGeometry args={[4, 1, 2]} />
         <meshStandardMaterial color={color} roughness={0.1} metalness={0.8} />
       </mesh>
-      
+
       {/* Wheels */}
       {[-1.5, 1.5].map((x, i) => (
         <group key={i}>
@@ -71,7 +56,7 @@ const EVModel3D: React.FC<EVModel3DProps> = ({
           ))}
         </group>
       ))}
-      
+
       {/* Headlights */}
       <mesh position={[1.8, 0.8, 0.7]}>
         <sphereGeometry args={[0.15, 16, 16]} />
@@ -84,24 +69,39 @@ const EVModel3D: React.FC<EVModel3DProps> = ({
     </group>
   );
 
-  // If we have a loaded GLTF model, use it
-  if (model && model.scene && !error) {
-    return (
-      <group ref={meshRef} scale={scale} rotation={rotation} position={position}>
-        <primitive object={model.scene.clone()} />
-        {isLoading && (
+  // Try to load GLTF model with error handling
+  const GLTFModel = () => {
+    try {
+      const { scene } = useGLTF(modelUrl);
+      return (
+        <group ref={meshRef} scale={scale} rotation={rotation} position={position}>
+          <primitive object={scene.clone()} />
+        </group>
+      );
+    } catch (err) {
+      console.warn('Failed to load GLTF model:', err);
+      return <FallbackModel />;
+    }
+  };
+
+  // Check if modelUrl exists and is valid
+  const isValidModelUrl = modelUrl && modelUrl.endsWith('.glb');
+
+  return (
+    <Suspense
+      fallback={
+        <group ref={meshRef} scale={scale} rotation={rotation} position={position}>
           <Html center>
             <div className="bg-slate-800 text-white px-4 py-2 rounded-lg">
               Loading model...
             </div>
           </Html>
-        )}
-      </group>
-    );
-  }
-
-  // Use fallback model
-  return <FallbackModel />;
+        </group>
+      }
+    >
+      {isValidModelUrl ? <GLTFModel /> : <FallbackModel />}
+    </Suspense>
+  );
 };
 
 // Preload common models

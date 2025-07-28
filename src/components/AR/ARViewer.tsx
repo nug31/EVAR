@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, OrbitControls } from '@react-three/drei';
 import EVModel3D from '../3D/EVModel3D';
@@ -80,20 +80,25 @@ const ARViewer: React.FC<ARViewerProps> = ({ modelUrl, color, onClose }) => {
         <Canvas
           camera={{ position: [0, 2, 5], fov: 45 }}
           gl={{ alpha: true, antialias: true }}
+          onCreated={({ gl }) => {
+            gl.setClearColor('#0f172a', 1);
+          }}
         >
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-          <pointLight position={[-10, -10, -10]} />
-          <EVModel3D
-            modelUrl={modelUrl}
-            color={color}
-            scale={1}
-            autoRotate={!isARActive}
-          />
-          <Environment preset="city" />
-          {!isARActive && (
-            <OrbitControls enablePan={false} enableZoom={true} enableRotate={true} />
-          )}
+          <Suspense fallback={null}>
+            <ambientLight intensity={0.5} />
+            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+            <pointLight position={[-10, -10, -10]} />
+            <EVModel3D
+              modelUrl={modelUrl}
+              color={color}
+              scale={1}
+              autoRotate={!isARActive}
+            />
+            <Environment preset="city" />
+            {!isARActive && (
+              <OrbitControls enablePan={false} enableZoom={true} enableRotate={true} />
+            )}
+          </Suspense>
         </Canvas>
       </div>
 
